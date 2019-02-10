@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/miroljub1995/clipboard-history-manager/issues"
   },
-  "homepage": "https://github.com/miroljub1995/clipboard-history-manager#readme"
+  "homepage": "https://github.com/miroljub1995/clipboard-history-manager#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^4.0.4"
+  }
 }
