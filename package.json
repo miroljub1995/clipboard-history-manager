@@ -2,7 +2,7 @@
   "name": "clipboard-history-manager",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "public/electron.js",
   "scripts": {
     "start": "concurrently --kill-others \"cross-env BROWSER=none npm run react-start\" \"wait-on http://localhost:3000 && npm run electron-start\"",
     "start-prod": "npm run react-build && npm run electron-start-prod",
@@ -24,14 +24,14 @@
   "dependencies": {
     "electron-is-dev": "^1.0.1",
     "react": "^16.8.1",
-    "react-dom": "^16.8.1",
-    "react-scripts": "2.1.4",
-    "wait-on": "^3.2.0"
+    "react-dom": "^16.8.1"
   },
   "devDependencies": {
     "concurrently": "^4.1.0",
     "cross-env": "^5.2.0",
-    "electron": "^4.0.4"
+    "electron": "^4.0.4",
+    "react-scripts": "^2.1.5",
+    "wait-on": "^3.2.0"
   },
   "eslintConfig": {
     "extends": "react-app"
