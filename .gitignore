@@ -1,5 +1,6 @@
-#build folder
+#build folder and dist folder
 build/
+dist/
 
 # Logs
 logs
