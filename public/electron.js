@@ -14,6 +14,8 @@ app.once('ready', () => {
         win.loadURL('http://localhost:3000');
     }
     else{
-        win.loadURL(`file://${__dirname}/build/index.html`);
+        win.loadURL(`file://${__dirname}/../build/index.html`);
     }
 });
+
+app.on('window-all-closed', app.quit);
