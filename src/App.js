@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import Proba from './proba';
 
 const isDev = window.require('electron-is-dev');
+const state = window.require('electron').remote.getGlobal('state');
 
 class App extends Component {
   render() {
@@ -22,6 +24,8 @@ class App extends Component {
             Learn React
           </a>
           <div>{"Is developement enviroment: " + isDev}</div>
+          <div>{"Global state: " + JSON.stringify(state)}</div>
+          <Proba></Proba>
         </header>
       </div>
     );
