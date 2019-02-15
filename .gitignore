@@ -2,6 +2,9 @@
 build/
 dist/
 
+#discard electron.js
+public/electron.js
+
 # Logs
 logs
 *.log
