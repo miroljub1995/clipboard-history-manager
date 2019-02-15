@@ -7,15 +7,26 @@ global.state = new State();
 
 app.disableHardwareAcceleration();
 
+let iconPath;
+if (process.platform === 'linux') {
+    iconPath = path.join(__dirname, '/../assets/icons/512x512.png');
+}
+else if (process.platform === 'win32') {
+    iconPath = path.join(__dirname, '/../assets/icons/icon.ico');
+}
+else {
+    throw new Error("Not suported platform");
+}
+
 let tray = null;
 let win;
 app.once('ready', () => {
     win = new BrowserWindow({
         width: 600,
         height: 600,
-        title: 'Clipboard history manager', 
+        title: 'Clipboard history manager',
         backgroundColor: '#002b36',
-        icon: path.join(__dirname, '/../assets/icons/icon.ico'),
+        icon: iconPath,
         show: false
     });
     if (isDev) {
@@ -27,17 +38,17 @@ app.once('ready', () => {
     }
 
     ///system tray
-   tray = new Tray(`${__dirname}/../assets/icons/icon.ico`);
+    tray = new Tray(iconPath);
     const contextMenu = Menu.buildFromTemplate([
         { label: 'Quit', type: 'normal', click: app.exit }
     ]);
     tray.setToolTip('Clipboard history manager');
     tray.setContextMenu(contextMenu);
-    
-    win.on('ready-to-show', function() { 
-        win.show(); 
-        win.focus(); 
-      });
+
+    win.on('ready-to-show', function () {
+        win.show();
+        win.focus();
+    });
 });
 
 
