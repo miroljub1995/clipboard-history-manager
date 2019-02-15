@@ -50,6 +50,10 @@
     "directories": {
       "buildResources": "assets"
     },
+    "files": [
+      "**/*",
+      "assets/TrayIcons/**/*"
+    ],
     "publish": [
       {
         "provider": "github",
