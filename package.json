@@ -4,14 +4,15 @@
   "description": "Application used to extend clipboard functions",
   "main": "public/electron.js",
   "scripts": {
-    "start": "concurrently --kill-others \"cross-env BROWSER=none npm run start:react\" \"wait-on http://localhost:3000 && npm run start:electron\"",
-    "start:electron": "cross-env ELECTRON_IS_DEV=1 electron .",
+    "start": "concurrently --kill-others \"cross-env BROWSER=none npm run start:react\" \"wait-on http://localhost:3000 && npm run build:electron && npm run start:electron\"",
+    "start:electron": "cross-env ELECTRON_IS_DEV=1 electron --inspect=5858 .",
     "start:react": "react-scripts start",
     "start:prod": "npm run build:react && npm run start:electron:prod",
     "start:electron:prod": "cross-env ELECTRON_IS_DEV=0 electron .",
-    "build": "npm run build:react && electron-builder --dir --publish=never",
+    "build": "npm run build:electron && npm run build:react && electron-builder --dir --publish=never",
+    "build:electron": "cd src && browserify -x electron electron-main.js -o ../public/electron.js -t [ babelify --presets [ @babel/preset-env ] --plugins [ @babel/plugin-proposal-class-properties ] ] --node -d && cd ../",
     "build:react": "react-scripts build",
-    "build:release": "npm run build:react && cross-env GH_TOKEN=\"cc9fe892b2d04cf06ec6f2ce72db5db2f1514888\" electron-builder --publish=always",
+    "build:release": "npm run build:electron && npm run build:react && cross-env GH_TOKEN=\"cc9fe892b2d04cf06ec6f2ce72db5db2f1514888\" electron-builder --publish=always",
     "prebuild": "shx rm -rf dist",
     "prebuild:release": "shx rm -rf dist"
   },
@@ -31,9 +32,8 @@
     "react-dom": "^16.8.1"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-class-properties": "^7.3.0",
-    "@babel/preset-env": "^7.3.1",
-    "@babel/register": "^7.0.0",
+    "babelify": "^10.0.0",
+    "browserify": "^16.2.3",
     "concurrently": "^4.1.0",
     "cross-env": "^5.2.0",
     "electron": "^4.0.4",
