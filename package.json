@@ -52,7 +52,7 @@
     },
     "files": [
       "**/*",
-      "assets/TrayIcons/**/*"
+      "assets/icons/**/*"
     ],
     "publish": [
       {
