@@ -1,8 +1,9 @@
 class State {
     clipboards = [];
     
+    
     add = (clipboard) => {
-        this.clipboards.push(clipboard);
+        this.clipboards.unshift(clipboard);
     }
 }
 
