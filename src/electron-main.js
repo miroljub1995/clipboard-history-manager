@@ -23,7 +23,7 @@ app.once('ready', () => {
     }
 
     ///system tray
-    let tray = new Tray(`${__dirname}/../assets/TrayIcons/electron_icon.png`);
+    tray = new Tray(`${__dirname}/../assets/TrayIcons/electron_icon.png`);
     const contextMenu = Menu.buildFromTemplate([
         { label: 'Quit', type: 'normal', click: app.exit }
     ]);
