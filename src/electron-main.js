@@ -1,6 +1,6 @@
 import { app, BrowserWindow, Menu, Tray } from 'electron';
 import isDev from 'electron-is-dev';
-import State from './state';
+import State from './State';
 
 global.state = new State();
 
@@ -14,12 +14,11 @@ app.once('ready', () => {
         height: 600,
         backgroundColor: '#ffffff'
     });
-    win.toggleDevTools();
     if (isDev) {
-        win.loadURL('http://localhost:3000');
+        win.loadURL('http://localhost:3000#popup');
     }
     else {
-        let index = `file://${__dirname}/../build/index.html`;
+        let index = `file://${__dirname}/../build/index.html#popup`;
         win.loadURL(index);
     }
 
