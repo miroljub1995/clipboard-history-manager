@@ -6,31 +6,45 @@ class SelectableList extends Component {
     constructor(props) {
         super(props);
 
-        this.state = {
-            items: props.items,
-            selectedIndex: 0,
+        document.onkeydown = (e) => {
+            const { items, selectedIndex, onSelect } = this.props;
+
+            const keyDown = 40;
+            const keyUp = 38;
+
+            if (e.keyCode === keyDown && selectedIndex !== items.length - 1) {
+                onSelect(selectedIndex + 1);
+            }
+
+            if (e.keyCode === keyUp && selectedIndex !== 0) {
+                onSelect(selectedIndex - 1);
+            }
         }
     }
 
-    componentDidUpdate(lastProps) {
-        if (lastProps.items !== this.props.items) {
-            this.setState({ items: this.props.items });
-        }
-        if (lastProps.selectedIndex !== this.props.selectedIndex) {
-            this.setState({ selectedIndex: this.props.selectedIndex });
-        }
+    handleItemClick = (index) => {
+        this.state.onSelect(index);
     }
 
     render() {
-        const { items, selectedIndex } = this.state;
+        const { items, selectedIndex } = this.props;
         const listItems = items.map((e, i) => {
-            return (<ListItem key={i} value={e} selected={i === selectedIndex} />);
+            const selected = i === selectedIndex;
+            return (<ListItem
+                key={i}
+                value={e}
+                selected={selected}
+                onClick={() => this.handleItemClick(i)}
+                isLast={i === items.length - 1}
+                isFirst={i === 0} />);
         });
         return (
-            <div>
+            <div className='container'>
                 {listItems}
             </div>);
     }
 }
+
+
 
 export default SelectableList;

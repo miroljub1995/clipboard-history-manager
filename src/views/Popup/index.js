@@ -2,33 +2,38 @@ import React, { Component } from 'react';
 import './index.css';
 import SelectableList from './SelectableList';
 
-const clipboard = window.require('electron-clipboard-extended');
 const electron = window.require('electron');
+const ipcRenderer = electron.ipcRenderer;
 const electronMain = electron.remote;
-const { globalShortcut, ipcRenderer } = electronMain;
+
+// let a = electron.remote.clipboard.readText();
+let a = navigator.clipboard.readText().then(text => console.log(text));
 
 let globalState = electronMain.getGlobal('state');
 // globalState.add("proba");
 // globalState = electronMain.getGlobal('state');
 
-let registerShortcut = (shortcut, callback) => {
-  globalShortcut.register(shortcut, callback);
-}
-
-let unregisterShortcut = (shortcut) => {
-  globalShortcut.unregister(shortcut);
-}
-
 class Popup extends Component {
+  // clipboard = window.require('electron-clipboard-extended');
   state = {
-    clipboards: globalState.clipboards
+    clipboards: globalState.clipboards,
+    selectedIndex: 0
   };
 
   constructor(props) {
     super(props);
 
-    registerShortcut('CommandOrControl+V', this.onShortcutPaste);
-    clipboard.on('text-changed', this.onTextChange).startWatching();
+    window.addEventListener('keydown', (e) => {
+      debugger;
+      console.log(e.ctrlKey, e.key);
+      if ((e.ctrlKey && e.key === 'v') || e.key === 'enter') {
+        e.preventDefault();
+        globalState.commitSelect(this.state.selectedIndex);
+        ipcRenderer.send('onPopupPaste');
+      }
+    });
+    debugger;
+    // window.require('electron-clipboard-extended').on('text-changed', this.onTextChange).startWatching();
   }
 
   onShortcutPaste = () => {
@@ -37,20 +42,25 @@ class Popup extends Component {
 
   onTextChange = () => {
     this.setState(() => {
-      let currentText = clipboard.readText();
+      let currentText = window.require('electron-clipboard-extended').readText();
       globalState.add(currentText);
       return { clipboards: globalState.clipboards }
     });
   }
 
+  handleOnSelect = (index) => {
+    this.setState({ selectedIndex: index });
+  }
+
   render() {
+    const { clipboards, selectedIndex } = this.state;
     return (
       <div className="Popup">
         <header className="Popup-header">
           {/* <div>{"Is developement enviroment: " + isDev}</div> */}
           {/* <div>{"Global state: " + JSON.stringify(this.state.clipboards)}</div> */}
           {/* <div>This is popup window</div> */}
-          <SelectableList items={this.state.clipboards} selectedIndex={0} onChange={(selected) => { console.log(selected) }} />
+          <SelectableList items={clipboards} selectedIndex={selectedIndex} onSelect={this.handleOnSelect} />
         </header>
       </div>
     );

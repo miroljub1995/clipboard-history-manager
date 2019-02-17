@@ -1,6 +1,25 @@
+.item {
+    max-width: 100%;
+    overflow: hidden;
+    padding: 7px;
+}
+
 .selected {
     border-style: solid;
     border-color: blue;
     border-width: 2px;
-    border-radius: 10px
+    border-radius: 5px;
+    padding: 5px;
+}
+
+pre {
+    margin: 0;
+}
+
+.last {
+    margin-bottom: 5px;
+}
+
+.first {
+    margin-top: 5px;
 }

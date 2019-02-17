@@ -1,11 +1,22 @@
-import { app, BrowserWindow, Menu, Tray } from 'electron';
+import { app, BrowserWindow, Menu, Tray, globalShortcut, ipcMain, clipboard } from 'electron';
 import isDev from 'electron-is-dev';
 import State from './State';
 import * as path from 'path'
+import * as ks from 'node-key-sender';
+// import * as clipboardEx from 'electron-clipboard-extended';
+
+// let a = clipboard.readText();
+
+debugger;
 
 global.state = new State();
 
 app.disableHardwareAcceleration();
+ks.setOption('startDelayMillisec', 0);
+ks.setOption('globalDelayBetweenMillisec', 0);
+ks.setOption('globalDelayPressMillisec', 0);
+
+// console.log(clipboardEx);
 
 let iconPath;
 if (process.platform === 'linux') {
@@ -19,23 +30,69 @@ else {
 }
 
 let tray = null;
-let win;
-app.once('ready', () => {
-    win = new BrowserWindow({
-        width: 600,
-        height: 600,
-        title: 'Clipboard history manager',
-        backgroundColor: '#002b36',
-        icon: iconPath,
-        show: false
+let popupWin;
+
+const registerFirstPaste = () => {
+    globalShortcut.register("CommandOrControl+V", () => {
+        popupWin.show();
     });
+}
+
+const unregisterFirstPaste = () => {
+    globalShortcut.unregister("CommandOrControl+V");
+}
+
+let needToRegisterInHide = false;
+
+app.once('ready', () => {
+    popupWin = new BrowserWindow({
+        width: 400,
+        height: 365,
+        title: 'Clipboard history manager',
+        backgroundColor: '#ffffff',
+        icon: iconPath,
+        show: false,
+        webPreferences: {nodeIntegration: true}
+    });
+    popupWin.toggleDevTools();
     if (isDev) {
-        win.loadURL('http://localhost:3000#popup');
+        popupWin.loadURL('http://localhost:3000#popup');
+        console.log('development');
     }
     else {
         let index = `file://${__dirname}/../build/index.html#popup`;
-        win.loadURL(index);
+        popupWin.loadURL(index);
+        console.log('production');
     }
+    popupWin.once('closed', () => { popupWin = null; });
+    popupWin.on('blur', () => {
+        popupWin.hide();
+    });
+    popupWin.on('show', () => {
+        needToRegisterInHide = true;
+        unregisterFirstPaste();
+    });
+    popupWin.on('hide', () => {
+        // setTimeout(registerFirstPaste, 300);
+        if (needToRegisterInHide) {
+            registerFirstPaste();
+        }
+        needToRegisterInHide = false;
+    });
+
+    registerFirstPaste();
+    ipcMain.on('onPopupPaste', () => {
+        needToRegisterInHide = false;
+        popupWin.blur();
+        // clipboardEx.writeText(global.state.first());
+        ks.sendCombination(['control', 'v'])
+            .then(() => {
+                // needToRegisterInHide = true;
+                registerFirstPaste();
+            });
+        // ks.sendKey('control');
+        // setTimeout(registerFirstPaste, 300);
+    });
 
     ///system tray
     tray = new Tray(iconPath);
@@ -45,9 +102,9 @@ app.once('ready', () => {
     tray.setToolTip('Clipboard history manager');
     tray.setContextMenu(contextMenu);
 
-    win.on('ready-to-show', function () {
-        win.show();
-        win.focus();
+    popupWin.on('ready-to-show', function () {
+        popupWin.show();
+        popupWin.focus();
     });
 });
 
