@@ -10,7 +10,7 @@
     "start:prod": "npm run build:react && npm run start:electron:prod",
     "start:electron:prod": "cross-env ELECTRON_IS_DEV=0 electron .",
     "build": "npm run build:electron && npm run build:react && electron-builder --dir --publish=never",
-    "build:electron": "cd src && browserify -x electron -x robotjs -x electron-clipboard-extended -x node-key-sender electron-main.js -o ../public/electron.js -t [ babelify --presets [ @babel/preset-env ] --plugins [ @babel/plugin-proposal-class-properties ] ] --node -d && cd ../",
+    "build:electron": "cd src && browserify -x electron -x robotjs -x electron-clipboard-extended electron-main.js -o ../public/electron.js -t [ babelify --presets [ @babel/preset-env ] --plugins [ @babel/plugin-proposal-class-properties ] ] --node -d && cd ../",
     "build:react": "react-scripts build",
     "build:release": "npm run build:electron && npm run build:react && cross-env GH_TOKEN=\"cc9fe892b2d04cf06ec6f2ce72db5db2f1514888\" electron-builder --publish=always",
     "prebuild": "shx rm -rf dist",
@@ -29,7 +29,6 @@
   "dependencies": {
     "electron-clipboard-extended": "^1.1.1",
     "electron-is-dev": "^1.0.1",
-    "node-key-sender": "^1.0.11",
     "react": "^16.8.1",
     "react-dom": "^16.8.1",
     "react-router": "^4.3.1",

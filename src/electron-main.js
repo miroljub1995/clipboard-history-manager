@@ -2,22 +2,11 @@ import { app, BrowserWindow, Menu, Tray, globalShortcut, ipcMain, clipboard } fr
 import isDev from 'electron-is-dev';
 import State from './State';
 import * as path from 'path'
-import * as ks from 'node-key-sender';
 // import * as clipboardEx from 'electron-clipboard-extended';
 import * as robotjs from 'robotjs';
 
-// let a = clipboard.readText();
-
-debugger;
-
 global.state = new State();
-
 app.disableHardwareAcceleration();
-ks.setOption('startDelayMillisec', 0);
-ks.setOption('globalDelayBetweenMillisec', 0);
-ks.setOption('globalDelayPressMillisec', 0);
-
-// console.log(clipboardEx);
 
 let iconPath;
 if (process.platform === 'linux') {
@@ -33,7 +22,6 @@ else {
 let tray = null;
 let popupWin = null;
 
-// let needToRegisterInHide = false;
 const createPopupWindow = (iconPath) => {
     const registerFirstPaste = () => {
         globalShortcut.register("CommandOrControl+V", () => {
@@ -54,7 +42,7 @@ const createPopupWindow = (iconPath) => {
         show: false,
         webPreferences: { nodeIntegration: true }
     });
-    popupWin.toggleDevTools();
+    // popupWin.toggleDevTools();
     if (isDev) {
         popupWin.loadURL('http://localhost:3000#popup');
         console.log('development');
@@ -69,33 +57,17 @@ const createPopupWindow = (iconPath) => {
         popupWin.hide();
     });
     popupWin.on('show', () => {
-        // needToRegisterInHide = true;
         unregisterFirstPaste();
     });
     popupWin.on('hide', () => {
-        // if (needToRegisterInHide) {
-        //     registerFirstPaste();
-        // }
-        // needToRegisterInHide = false;
         registerFirstPaste();
     });
 
     registerFirstPaste();
     ipcMain.on('onPopupPaste', () => {
-        debugger;
-        // needToRegisterInHide = false;
+        clipboard.writeText(global.state.first());
         popupWin.blur();
-        // ks.sendCombination(['control', 'v'])
-        //     .then(() => {
-        //         // needToRegisterInHide = true;
-        //         debugger;
-        //         registerFirstPaste();
-        //     }, (err) => {
-        //         console.log("greska--------------- " + err);
-        //     });
         robotjs.keyTap('v', 'control');
-        // needToRegisterInHide = true;
-        registerFirstPaste();
     });
     return popupWin;
 }
@@ -120,5 +92,11 @@ app.once('ready', () => {
     // });
 });
 
+app.on('window-all-closed', () => {
+    app.quit();
+});
 
-app.on('window-all-closed', app.quit);
+app.on('quit', () => {
+    popupWin = null;
+    tray = null;
+})

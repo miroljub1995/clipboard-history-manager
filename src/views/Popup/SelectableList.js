@@ -23,7 +23,7 @@ class SelectableList extends Component {
     }
 
     handleItemClick = (index) => {
-        this.state.onSelect(index);
+        this.props.onSelect(index);
     }
 
     render() {
