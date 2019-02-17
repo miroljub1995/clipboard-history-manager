@@ -5,7 +5,7 @@ import * as path from 'path'
 import * as ks from 'node-key-sender';
 // import * as clipboardEx from 'electron-clipboard-extended';
 
-// let a = clipboard.readText();
+let a = clipboard.readText();
 
 debugger;
 
@@ -30,29 +30,28 @@ else {
 }
 
 let tray = null;
-let popupWin;
+let popupWin = null;
 
-const registerFirstPaste = () => {
-    globalShortcut.register("CommandOrControl+V", () => {
-        popupWin.show();
-    });
-}
+const createPopupWindow = (iconPath) => {
+    let needToRegisterInHide = false;
+    const registerFirstPaste = () => {
+        globalShortcut.register("CommandOrControl+V", () => {
+            popupWin.show();
+        });
+    }
 
-const unregisterFirstPaste = () => {
-    globalShortcut.unregister("CommandOrControl+V");
-}
+    const unregisterFirstPaste = () => {
+        globalShortcut.unregister("CommandOrControl+V");
+    }
 
-let needToRegisterInHide = false;
-
-app.once('ready', () => {
-    popupWin = new BrowserWindow({
+    let popupWin = new BrowserWindow({
         width: 400,
         height: 365,
         title: 'Clipboard history manager',
         backgroundColor: '#ffffff',
         icon: iconPath,
         show: false,
-        webPreferences: {nodeIntegration: true}
+        webPreferences: { nodeIntegration: true }
     });
     popupWin.toggleDevTools();
     if (isDev) {
@@ -73,7 +72,6 @@ app.once('ready', () => {
         unregisterFirstPaste();
     });
     popupWin.on('hide', () => {
-        // setTimeout(registerFirstPaste, 300);
         if (needToRegisterInHide) {
             registerFirstPaste();
         }
@@ -84,23 +82,27 @@ app.once('ready', () => {
     ipcMain.on('onPopupPaste', () => {
         needToRegisterInHide = false;
         popupWin.blur();
-        // clipboardEx.writeText(global.state.first());
         ks.sendCombination(['control', 'v'])
             .then(() => {
-                // needToRegisterInHide = true;
                 registerFirstPaste();
             });
-        // ks.sendKey('control');
-        // setTimeout(registerFirstPaste, 300);
     });
+    return popupWin;
+}
 
-    ///system tray
-    tray = new Tray(iconPath);
+const createTray = (iconPath) => {
+    let tray = new Tray(iconPath);
     const contextMenu = Menu.buildFromTemplate([
         { label: 'Quit', type: 'normal', click: app.exit }
     ]);
     tray.setToolTip('Clipboard history manager');
     tray.setContextMenu(contextMenu);
+    return tray;
+}
+
+app.once('ready', () => {
+    popupWin = createPopupWindow(iconPath);
+    tray = createTray(iconPath);
 
     popupWin.on('ready-to-show', function () {
         popupWin.show();

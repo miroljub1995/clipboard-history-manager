@@ -6,8 +6,8 @@ const electron = window.require('electron');
 const ipcRenderer = electron.ipcRenderer;
 const electronMain = electron.remote;
 
-// let a = electron.remote.clipboard.readText();
-let a = navigator.clipboard.readText().then(text => console.log(text));
+let a = electron.remote.clipboard.readText();
+// let a = navigator.clipboard.readText().then(text => console.log(text));
 
 let globalState = electronMain.getGlobal('state');
 // globalState.add("proba");
@@ -33,7 +33,7 @@ class Popup extends Component {
       }
     });
     debugger;
-    // window.require('electron-clipboard-extended').on('text-changed', this.onTextChange).startWatching();
+    window.require('electron-clipboard-extended').on('text-changed', this.onTextChange).startWatching();
   }
 
   onShortcutPaste = () => {
