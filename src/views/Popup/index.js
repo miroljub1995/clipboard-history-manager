@@ -5,8 +5,9 @@ import SelectableList from './SelectableList';
 const electron = window.require('electron');
 const ipcRenderer = electron.ipcRenderer;
 const electronMain = electron.remote;
+const clipboard = window.require('electron-clipboard-extended');
 
-let a = electron.remote.clipboard.readText();
+// let a = electron.remote.clipboard.readText();
 // let a = navigator.clipboard.readText().then(text => console.log(text));
 
 let globalState = electronMain.getGlobal('state');
@@ -14,7 +15,6 @@ let globalState = electronMain.getGlobal('state');
 // globalState = electronMain.getGlobal('state');
 
 class Popup extends Component {
-  // clipboard = window.require('electron-clipboard-extended');
   state = {
     clipboards: globalState.clipboards,
     selectedIndex: 0
@@ -24,16 +24,17 @@ class Popup extends Component {
     super(props);
 
     window.addEventListener('keydown', (e) => {
-      debugger;
+      // debugger;
       console.log(e.ctrlKey, e.key);
       if ((e.ctrlKey && e.key === 'v') || e.key === 'enter') {
         e.preventDefault();
         globalState.commitSelect(this.state.selectedIndex);
+        debugger;
         ipcRenderer.send('onPopupPaste');
       }
     });
-    debugger;
-    window.require('electron-clipboard-extended').on('text-changed', this.onTextChange).startWatching();
+    // debugger;
+    clipboard.on('text-changed', this.onTextChange).startWatching();
   }
 
   onShortcutPaste = () => {
@@ -42,7 +43,7 @@ class Popup extends Component {
 
   onTextChange = () => {
     this.setState(() => {
-      let currentText = window.require('electron-clipboard-extended').readText();
+      let currentText = clipboard.readText();
       globalState.add(currentText);
       return { clipboards: globalState.clipboards }
     });

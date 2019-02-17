@@ -4,8 +4,9 @@ import State from './State';
 import * as path from 'path'
 import * as ks from 'node-key-sender';
 // import * as clipboardEx from 'electron-clipboard-extended';
+import * as robotjs from 'robotjs';
 
-let a = clipboard.readText();
+// let a = clipboard.readText();
 
 debugger;
 
@@ -32,8 +33,8 @@ else {
 let tray = null;
 let popupWin = null;
 
+// let needToRegisterInHide = false;
 const createPopupWindow = (iconPath) => {
-    let needToRegisterInHide = false;
     const registerFirstPaste = () => {
         globalShortcut.register("CommandOrControl+V", () => {
             popupWin.show();
@@ -68,24 +69,33 @@ const createPopupWindow = (iconPath) => {
         popupWin.hide();
     });
     popupWin.on('show', () => {
-        needToRegisterInHide = true;
+        // needToRegisterInHide = true;
         unregisterFirstPaste();
     });
     popupWin.on('hide', () => {
-        if (needToRegisterInHide) {
-            registerFirstPaste();
-        }
-        needToRegisterInHide = false;
+        // if (needToRegisterInHide) {
+        //     registerFirstPaste();
+        // }
+        // needToRegisterInHide = false;
+        registerFirstPaste();
     });
 
     registerFirstPaste();
     ipcMain.on('onPopupPaste', () => {
-        needToRegisterInHide = false;
+        debugger;
+        // needToRegisterInHide = false;
         popupWin.blur();
-        ks.sendCombination(['control', 'v'])
-            .then(() => {
-                registerFirstPaste();
-            });
+        // ks.sendCombination(['control', 'v'])
+        //     .then(() => {
+        //         // needToRegisterInHide = true;
+        //         debugger;
+        //         registerFirstPaste();
+        //     }, (err) => {
+        //         console.log("greska--------------- " + err);
+        //     });
+        robotjs.keyTap('v', 'control');
+        // needToRegisterInHide = true;
+        registerFirstPaste();
     });
     return popupWin;
 }
@@ -104,10 +114,10 @@ app.once('ready', () => {
     popupWin = createPopupWindow(iconPath);
     tray = createTray(iconPath);
 
-    popupWin.on('ready-to-show', function () {
-        popupWin.show();
-        popupWin.focus();
-    });
+    // popupWin.on('ready-to-show', function () {
+    //     popupWin.show();
+    //     popupWin.focus();
+    // });
 });
 
 
