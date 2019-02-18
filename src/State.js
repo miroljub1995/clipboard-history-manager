@@ -12,7 +12,7 @@ class State {
 
     commitSelect = (index) => {
         let clipboard = this.clipboards[index];
-        this.clipboards.splice(index, 0);
+        this.clipboards.splice(index, 1);
         this.clipboards.unshift(clipboard);
     }
 

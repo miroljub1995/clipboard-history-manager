@@ -4,9 +4,17 @@ import State from './State';
 import * as path from 'path'
 // import * as clipboardEx from 'electron-clipboard-extended';
 import * as robotjs from 'robotjs';
+import { autoUpdater } from 'electron-updater';
 
 global.state = new State();
 app.disableHardwareAcceleration();
+let baseUrl;
+if (isDev) {
+    baseUrl = 'http://localhost:3000';
+}
+else {
+    baseUrl = `file://${__dirname}/../build/index.html`;
+}
 
 let iconPath;
 if (process.platform === 'linux') {
@@ -42,16 +50,7 @@ const createPopupWindow = (iconPath) => {
         show: false,
         webPreferences: { nodeIntegration: true }
     });
-    // popupWin.toggleDevTools();
-    if (isDev) {
-        popupWin.loadURL('http://localhost:3000#popup');
-        console.log('development');
-    }
-    else {
-        let index = `file://${__dirname}/../build/index.html#popup`;
-        popupWin.loadURL(index);
-        console.log('production');
-    }
+    popupWin.loadURL(baseUrl + '#popup');
     popupWin.once('closed', () => { popupWin = null; });
     popupWin.on('blur', () => {
         popupWin.hide();
@@ -72,9 +71,26 @@ const createPopupWindow = (iconPath) => {
     return popupWin;
 }
 
+const onSettings = () =>
+{
+    let settingsWin = new BrowserWindow({
+        width: 700,
+        height: 800,
+        title: 'Settings',
+        backgroundColor: '#ffffff',
+        icon: iconPath,
+        webPreferences: { nodeIntegration: true }
+    });
+
+    settingsWin.loadURL(baseUrl + '#settings');
+
+    return settingsWin;
+}
+
 const createTray = (iconPath) => {
     let tray = new Tray(iconPath);
     const contextMenu = Menu.buildFromTemplate([
+        { label: 'Settings', type: 'normal', click: onSettings },
         { label: 'Quit', type: 'normal', click: app.exit }
     ]);
     tray.setToolTip('Clipboard history manager');
@@ -85,7 +101,9 @@ const createTray = (iconPath) => {
 app.once('ready', () => {
     popupWin = createPopupWindow(iconPath);
     tray = createTray(iconPath);
-
+    autoUpdater.checkForUpdatesAndNotify().then((e) => {
+        
+    });
     // popupWin.on('ready-to-show', function () {
     //     popupWin.show();
     //     popupWin.focus();
