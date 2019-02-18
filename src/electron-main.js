@@ -1,4 +1,5 @@
 import { app, BrowserWindow, Menu, Tray, globalShortcut, ipcMain, clipboard } from 'electron';
+import { CancellationToken } from 'builder-util-runtime';
 import isDev from 'electron-is-dev';
 import State from './State';
 import * as path from 'path'
@@ -7,6 +8,15 @@ import * as robotjs from 'robotjs';
 import { autoUpdater } from 'electron-updater';
 
 global.state = new State();
+global.versionInfo = {
+    current: app.getVersion()
+};
+
+const updateVersionInfo = (updater) => {
+    global.versionInfo = { ...global.versionInfo, ...updater };
+    settingsWin && settingsWin.webContents.send('versionInfo-updated', global.versionInfo);
+}
+
 app.disableHardwareAcceleration();
 let baseUrl;
 if (isDev) {
@@ -29,6 +39,7 @@ else {
 
 let tray = null;
 let popupWin = null;
+let settingsWin = null;
 
 const createPopupWindow = (iconPath) => {
     const registerFirstPaste = () => {
@@ -48,7 +59,8 @@ const createPopupWindow = (iconPath) => {
         backgroundColor: '#ffffff',
         icon: iconPath,
         show: false,
-        webPreferences: { nodeIntegration: true }
+        webPreferences: { nodeIntegration: true },
+        frame: false
     });
     popupWin.loadURL(baseUrl + '#popup');
     popupWin.once('closed', () => { popupWin = null; });
@@ -71,20 +83,26 @@ const createPopupWindow = (iconPath) => {
     return popupWin;
 }
 
-const onSettings = () =>
-{
-    let settingsWin = new BrowserWindow({
+const onSettings = () => {
+    settingsWin = new BrowserWindow({
         width: 700,
-        height: 800,
+        height: 700,
         title: 'Settings',
         backgroundColor: '#ffffff',
         icon: iconPath,
-        webPreferences: { nodeIntegration: true }
+        webPreferences: { nodeIntegration: true },
+        // show: false
+    });
+    // settingsWin.setMenu(null);
+    // settingsWin.toggleDevTools();
+    settingsWin.loadURL(baseUrl + '#settings');
+    // settingsWin.on('ready-to-show', () => {
+    //     settingsWin.show();
+    // });
+    settingsWin.on('close', () => {
+        settingsWin = null;
     });
 
-    settingsWin.loadURL(baseUrl + '#settings');
-
-    return settingsWin;
 }
 
 const createTray = (iconPath) => {
@@ -101,9 +119,17 @@ const createTray = (iconPath) => {
 app.once('ready', () => {
     popupWin = createPopupWindow(iconPath);
     tray = createTray(iconPath);
-    autoUpdater.checkForUpdatesAndNotify().then((e) => {
-        
-    });
+
+    autoUpdater.autoDownload = false;
+    attachAutoUpdaterListeners();
+    autoUpdater.checkForUpdatesAndNotify();
+    setInterval(() => {
+        console.log("======================================================");
+        // if(global.versionInfo.)
+        if(!updateInProgress) { 
+            autoUpdater.checkForUpdatesAndNotify();
+        }
+    }, 10000);
     // popupWin.on('ready-to-show', function () {
     //     popupWin.show();
     //     popupWin.focus();
@@ -116,5 +142,51 @@ app.on('window-all-closed', () => {
 
 app.on('quit', () => {
     popupWin = null;
+    settingsWin = null;
     tray = null;
-})
+});
+
+let updateInProgress = false;
+const attachAutoUpdaterListeners = () => {
+    autoUpdater.on('checking-for-update', () => {
+        // console.log('-----------checking-for-update: ');
+        updateVersionInfo({ checkingForUpdates: true, updateInfo: null });
+    });
+
+    autoUpdater.on('update-available', (info) => {
+        updateInProgress = true;
+        // console.log('-----------update-available: ', info);
+        updateVersionInfo({ updateAvailable: true, checkingForUpdates: false, updateInfo: info });
+    });
+    autoUpdater.on('update-not-available', (info) => {
+        // console.log('-----------update-not-available: ', info);
+        updateVersionInfo({ updateAvailable: false, checkingForUpdates: false });
+    });
+
+    // autoUpdater.on('download-progress', (progress) => {
+    //     // console.log('-----------download-progress: ', progress);
+    //     updateVersionInfo({ updateProgress: progress });
+    // });
+
+    autoUpdater.on('update-downloaded', (info) => {
+        // console.log('-----------update-downloaded: ', info);
+        updateVersionInfo({ updateDownloaded: true });
+    });
+
+    ipcMain.on('download-update', () => {
+        const cancellationToken = new CancellationToken();
+        autoUpdater.downloadUpdate(cancellationToken).then(() => {
+            updateInProgress = false;
+            // console.log('-------------autoUpdater.downloadUpdate - resolved');
+        }, () => {
+            // console.log('-------------autoUpdater.downloadUpdate - rejected');
+            updateInProgress = false;
+        });
+        updateVersionInfo({ updateDownloading: true, checkingForUpdates: false });
+        // cancellationToken.cancel();
+    });
+
+    ipcMain.on('install-update', () => {
+        autoUpdater.quitAndInstall();
+    });
+}

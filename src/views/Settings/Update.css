@@ -1,0 +1,66 @@
+.view-container {
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+
+.svg-icon {
+    min-width: 100px;
+    max-width: 200px;
+    display: block;
+}
+
+.view-container p {
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.checking-for-update-icon {
+    display: block;
+    min-width: 100px;
+    max-width: 100px;
+    margin-left: 50px;
+}
+
+.download-update-icon {
+    display: block;
+    min-width: 100px;
+    max-width: 100px;
+    margin-bottom: 20px;
+}
+
+.downloading-icon {
+    display: block;
+    min-width: 100px;
+    max-width: 100px;
+}
+
+.update-button {
+    display: inline-block;
+    padding: 10px 10px;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    outline: none;
+    color: #000000;
+    background-color:#3a8ed6;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 1px 2px #999;
+    margin-top: 20px;
+  }
+  
+  .update-button:hover {
+    background-color:#2c7dc4;
+    }
+  
+  .update-button:active {
+    background-color:#2a89db;
+    box-shadow: 0 1px rgb(102, 102, 102);
+    transform: translateY(4px);
+  }
