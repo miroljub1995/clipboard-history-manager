@@ -44,7 +44,19 @@ class Settings extends Component {
                 if (err) {
                     alert("An error ocurred creating the file " + err.message)
                 }
-                alert("The file has been succesfully saved");
+                else {
+                    function getCommandLine() {
+                        switch (process.platform) { 
+                           case 'darwin' : return 'open';
+                           case 'win32' : return 'start';
+                           case 'win64' : return 'start';
+                           default : return 'xdg-open';
+                        }
+                     }
+                    var exec = window.require('child_process').exec;
+
+                    exec("" + '' + fileName);
+                }
             });
         });
     }

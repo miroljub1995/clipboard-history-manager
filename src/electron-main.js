@@ -149,27 +149,18 @@ app.on('quit', () => {
 let updateInProgress = false;
 const attachAutoUpdaterListeners = () => {
     autoUpdater.on('checking-for-update', () => {
-        // console.log('-----------checking-for-update: ');
         updateVersionInfo({ checkingForUpdates: true, updateInfo: null });
     });
 
     autoUpdater.on('update-available', (info) => {
         updateInProgress = true;
-        // console.log('-----------update-available: ', info);
         updateVersionInfo({ updateAvailable: true, checkingForUpdates: false, updateInfo: info });
     });
     autoUpdater.on('update-not-available', (info) => {
-        // console.log('-----------update-not-available: ', info);
         updateVersionInfo({ updateAvailable: false, checkingForUpdates: false });
     });
 
-    // autoUpdater.on('download-progress', (progress) => {
-    //     // console.log('-----------download-progress: ', progress);
-    //     updateVersionInfo({ updateProgress: progress });
-    // });
-
     autoUpdater.on('update-downloaded', (info) => {
-        // console.log('-----------update-downloaded: ', info);
         updateVersionInfo({ updateDownloaded: true });
     });
 
@@ -177,13 +168,10 @@ const attachAutoUpdaterListeners = () => {
         const cancellationToken = new CancellationToken();
         autoUpdater.downloadUpdate(cancellationToken).then(() => {
             updateInProgress = false;
-            // console.log('-------------autoUpdater.downloadUpdate - resolved');
         }, () => {
-            // console.log('-------------autoUpdater.downloadUpdate - rejected');
             updateInProgress = false;
         });
         updateVersionInfo({ updateDownloading: true, checkingForUpdates: false });
-        // cancellationToken.cancel();
     });
 
     ipcMain.on('install-update', () => {

@@ -13,7 +13,7 @@
     "build:electron": "cd src && browserify -x electron -x robotjs -x electron-clipboard-extended electron-main.js -o ../public/electron.js -t [ babelify --presets [ @babel/preset-env ] --plugins [ @babel/plugin-proposal-class-properties ] ] --node -d && cd ../",
     "build:react": "react-scripts build",
     "build:prod": "npm run build:electron && npm run build:react && electron-builder --publish=never",
-    "build:release": "npm run build:electron && npm run build:react && cross-env GH_TOKEN=\"7881ac0bb01292211f5e63d537c5da5616058752\" electron-builder --publish=always -c.asar=true",
+    "build:release": "npm run build:electron && npm run build:react && cross-env GH_TOKEN=\"dae422734f83bced33e031bd719bb37adcdb9714\" electron-builder --publish=always -c.asar=true",
     "prebuild": "shx rm -rf dist",
     "prebuild:prod": "npm run prebuild",
     "prebuild:release": "npm run prebuild"

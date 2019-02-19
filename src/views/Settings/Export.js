@@ -1,4 +1,5 @@
 import React from 'react';
+import './Export.css';
 
 const Export = ({onExport}) => {
     return (
@@ -10,7 +11,7 @@ const Export = ({onExport}) => {
             width: "100%",
             height: "100%"
         }}>
-            <button onClick={onExport} >Export clipboard to file</button>        
+            <button className="export-button" onClick={onExport} >Export clipboard to file</button>        
         </div>
     )
 }
